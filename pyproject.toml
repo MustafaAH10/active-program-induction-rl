@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "active-program-induction"
+version = "0.1.0"
+description = "Active program induction benchmark, dataset generation, and veRL reward infrastructure."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.6"]
+data = ["pyarrow>=15.0"]
+gpu = [
+  "torch>=2.3",
+  "transformers>=4.45",
+  "datasets>=2.19",
+  "pyarrow>=15.0"
+]
+
+[project.scripts]
+api-bench = "active_program_induction.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
