@@ -6,7 +6,7 @@ import random
 from typing import Iterable
 
 from active_program_induction import dfa, junta
-from active_program_induction.prompts import active_prompt
+from active_program_induction.prompts import active_prompt, passive_prompt
 
 
 def generate_tasks(
@@ -46,19 +46,48 @@ def read_jsonl(path: str | Path) -> list[dict]:
         return [json.loads(line) for line in f if line.strip()]
 
 
-def to_verl_rows(tasks: Iterable[dict], split: str = "train") -> list[dict]:
+def sample_examples(task: dict, n: int = 8, seed: int = 0) -> list[dict]:
+    rng = random.Random(seed)
+    examples = []
+    if task["family"] == "automata":
+        oracle = dfa.DFA.from_json(task["hidden"]["dfa"])
+        candidates = dfa.enumerate_words(task["public"]["alphabet"], max_len=4)
+        rng.shuffle(candidates)
+        for word in candidates[:n]:
+            examples.append({"input": word, "output": oracle.run(word)})
+        return examples
+    if task["family"] == "boolean_junta":
+        oracle = junta.Junta.from_json(task["hidden"])
+        seen = set()
+        while len(examples) < n:
+            x = tuple(rng.randint(0, 1) for _ in range(oracle.n_bits))
+            if x in seen:
+                continue
+            seen.add(x)
+            examples.append({"input": list(x), "output": oracle.run(list(x))})
+        return examples
+    raise ValueError(f"unknown family {task['family']!r}")
+
+
+def to_verl_rows(tasks: Iterable[dict], split: str = "train", mode: str = "active") -> list[dict]:
+    if mode not in {"active", "passive"}:
+        raise ValueError("mode must be active or passive")
     rows = []
-    for task in tasks:
+    for idx, task in enumerate(tasks):
         ground_truth = json.dumps(task, sort_keys=True)
+        prompt = active_prompt(task)
+        if mode == "passive":
+            prompt = passive_prompt(task, sample_examples(task, seed=idx))
         rows.append(
             {
                 "data_source": "active_program_induction",
-                "prompt": active_prompt(task),
+                "prompt": prompt,
                 "ability": task["family"],
                 "reward_model": {"style": "rule", "ground_truth": ground_truth},
                 "ground_truth": ground_truth,
                 "extra_info": {
                     "split": split,
+                    "mode": mode,
                     "task_id": task["task_id"],
                     "family": task["family"],
                     "tier": task["tier"],

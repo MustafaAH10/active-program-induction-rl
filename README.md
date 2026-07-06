@@ -19,6 +19,7 @@ Phase 1 is implemented end to end:
 - Active prompt format: the model emits a JSON transcript containing `queries` and a final `submission`.
 - Reward function: simulates oracle answers for the submitted queries, grades the final hypothesis, subtracts query cost and penalties.
 - Dataset generator: writes internal task JSONL plus veRL-compatible JSONL/parquet rows.
+- Passive ablation generator: writes fixed-example prompts over the same hidden task distribution.
 - veRL custom reward: `active_program_induction.training.verl_reward.compute_score`.
 - CPU smoke test: verifies generators, exact graders, and reward round trip without a GPU.
 - Single-GPU cold-start evaluator: runs a base HF/Qwen model on generated tasks and scores reward spread.
@@ -131,10 +132,12 @@ Outputs:
 ```text
 data/generated/train_tasks.jsonl    Internal task records with hidden oracles
 data/generated/val_tasks.jsonl      Internal validation records
-data/generated/train_verl.jsonl     veRL-shaped JSONL for inspection/debugging
+data/generated/train_verl.jsonl     Active veRL-shaped JSONL for inspection/debugging
 data/generated/val_verl.jsonl
-data/generated/train.parquet        veRL training file
-data/generated/val.parquet          veRL validation file
+data/generated/train_active.parquet Active veRL training file
+data/generated/val_active.parquet   Active veRL validation file
+data/generated/train_passive.parquet Passive ablation training file
+data/generated/val_passive.parquet  Passive ablation validation file
 ```
 
 The veRL rows include:
@@ -145,6 +148,8 @@ The veRL rows include:
 - `ground_truth`: serialized full task JSON used by the reward function.
 - `reward_model`: rule-based metadata.
 - `extra_info`: split/task metadata.
+
+Use active files for the main experiment and passive files for the matched-compute ablation.
 
 veRL's documentation says custom reward functions are passed `data_source`, `solution_str`, `ground_truth`, and `extra_info`; this repo's reward hook follows that interface in `src/active_program_induction/training/verl_reward.py`.
 
@@ -195,8 +200,8 @@ After dataset generation and a green cold-start gate:
 
 ```bash
 MODEL=Qwen/Qwen2.5-3B-Instruct \
-TRAIN_FILE=data/generated/train.parquet \
-VAL_FILE=data/generated/val.parquet \
+TRAIN_FILE=data/generated/train_active.parquet \
+VAL_FILE=data/generated/val_active.parquet \
 PYTHON=.venv-gpu/bin/python \
 bash scripts/train_verl_grpo_single_gpu.sh
 ```
@@ -218,6 +223,18 @@ custom_reward_function.name=compute_score
 ```
 
 The reward starts in graded mode by default, so wrong but behaviorally close submissions can receive partial reward. For exact-only validation, use `compute_score_exact` in the script or set a validation-specific reward path/name.
+
+To train the passive ablation on the same family/tier distribution:
+
+```bash
+TRAIN_FILE=data/generated/train_passive.parquet \
+VAL_FILE=data/generated/val_passive.parquet \
+EXPERIMENT_NAME=qwen-grpo-phase1-passive \
+PYTHON=.venv-gpu/bin/python \
+bash scripts/train_verl_grpo_single_gpu.sh
+```
+
+Compare active and passive runs at matched model, rollout count, batch size, total epochs, and task generator seed.
 
 ## Multi-GPU GRPO Training
 

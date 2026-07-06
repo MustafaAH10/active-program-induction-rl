@@ -4,8 +4,8 @@ set -euo pipefail
 # Multi-GPU variant. Start with the single-GPU script first; this only changes
 # resource counts and batch sizes.
 MODEL="${MODEL:-Qwen/Qwen2.5-7B-Instruct}"
-TRAIN_FILE="${TRAIN_FILE:-data/generated/train.parquet}"
-VAL_FILE="${VAL_FILE:-data/generated/val.parquet}"
+TRAIN_FILE="${TRAIN_FILE:-data/generated/train_active.parquet}"
+VAL_FILE="${VAL_FILE:-data/generated/val_active.parquet}"
 PROJECT_NAME="${PROJECT_NAME:-active-program-induction}"
 EXPERIMENT_NAME="${EXPERIMENT_NAME:-qwen-grpo-phase1-multigpu}"
 N_GPUS="${N_GPUS:-8}"

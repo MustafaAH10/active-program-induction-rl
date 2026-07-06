@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 
 from active_program_induction import agents
-from active_program_induction.dataset import generate_tasks, to_verl_rows
+from active_program_induction.dataset import generate_tasks, sample_examples, to_verl_rows
 from active_program_induction.scoring import score_completion
 from active_program_induction.training.verl_reward import compute_score
 
@@ -33,4 +33,15 @@ def test_verl_rows_and_reward_function_round_trip() -> None:
         ground_truth=row["ground_truth"],
         extra_info=row["extra_info"],
     )
+    assert reward > 0.9
+
+
+def test_passive_rows_include_examples_and_score() -> None:
+    task = generate_tasks(n=1, seed=321, families=("boolean_junta",), tiers=("easy",))[0]
+    examples = sample_examples(task, n=4, seed=0)
+    assert len(examples) == 4
+    row = to_verl_rows([task], mode="passive")[0]
+    assert '"examples"' in row["prompt"]
+    completion = json.dumps({"submission": task["hidden"]["expr"]})
+    reward = compute_score(row["data_source"], completion, row["ground_truth"], row["extra_info"])
     assert reward > 0.9

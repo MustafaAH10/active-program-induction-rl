@@ -21,6 +21,7 @@ def main() -> None:
     gen.add_argument("--out", default="data/generated/tasks.jsonl")
     gen.add_argument("--verl-out", default=None, help="optional veRL JSONL rows")
     gen.add_argument("--parquet-out", default=None, help="optional veRL parquet rows")
+    gen.add_argument("--mode", choices=["active", "passive"], default="active")
 
     smoke = sub.add_parser("smoke", help="run CPU scorer smoke test")
     smoke.add_argument("--n", type=int, default=20)
@@ -42,11 +43,11 @@ def main() -> None:
         write_jsonl(tasks, args.out)
         print(f"wrote {len(tasks)} tasks to {args.out}")
         if args.verl_out:
-            rows = to_verl_rows(tasks)
+            rows = to_verl_rows(tasks, mode=args.mode)
             write_jsonl(rows, args.verl_out)
             print(f"wrote {len(rows)} veRL JSONL rows to {args.verl_out}")
         if args.parquet_out:
-            rows = to_verl_rows(tasks)
+            rows = to_verl_rows(tasks, mode=args.mode)
             write_parquet(rows, args.parquet_out)
             print(f"wrote {len(rows)} veRL parquet rows to {args.parquet_out}")
     elif args.cmd == "smoke":

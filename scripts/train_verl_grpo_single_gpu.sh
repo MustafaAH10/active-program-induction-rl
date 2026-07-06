@@ -6,8 +6,8 @@ set -euo pipefail
 #   MODEL=Qwen/Qwen2.5-3B-Instruct bash scripts/train_verl_grpo_single_gpu.sh
 
 MODEL="${MODEL:-Qwen/Qwen2.5-3B-Instruct}"
-TRAIN_FILE="${TRAIN_FILE:-data/generated/train.parquet}"
-VAL_FILE="${VAL_FILE:-data/generated/val.parquet}"
+TRAIN_FILE="${TRAIN_FILE:-data/generated/train_active.parquet}"
+VAL_FILE="${VAL_FILE:-data/generated/val_active.parquet}"
 PROJECT_NAME="${PROJECT_NAME:-active-program-induction}"
 EXPERIMENT_NAME="${EXPERIMENT_NAME:-qwen-grpo-phase1-single-gpu}"
 N_GPUS="${N_GPUS:-1}"
