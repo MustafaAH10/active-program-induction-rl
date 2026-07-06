@@ -7,11 +7,16 @@ N_TRAIN="${N_TRAIN:-2000}"
 N_VAL="${N_VAL:-300}"
 SEED="${SEED:-42}"
 OUT_DIR="${OUT_DIR:-data/generated}"
+VENV="${VENV:-.venv-data}"
 
-python3 -m pip install -e '.[data]'
+if [ ! -x "${VENV}/bin/python" ]; then
+  python3 -m venv "${VENV}"
+fi
+"${VENV}/bin/python" -m pip install --upgrade pip
+"${VENV}/bin/python" -m pip install -e '.[data]'
 mkdir -p "${OUT_DIR}"
 
-api-bench generate \
+"${VENV}/bin/api-bench" generate \
   --n "${N_TRAIN}" \
   --seed "${SEED}" \
   --families automata,boolean_junta \
@@ -20,7 +25,7 @@ api-bench generate \
   --verl-out "${OUT_DIR}/train_verl.jsonl" \
   --parquet-out "${OUT_DIR}/train.parquet"
 
-api-bench generate \
+"${VENV}/bin/api-bench" generate \
   --n "${N_VAL}" \
   --seed "$((SEED + 1))" \
   --families automata,boolean_junta \
