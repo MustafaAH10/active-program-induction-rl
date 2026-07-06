@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Run this on a rented CUDA machine with veRL installed.
-# Example:
-#   MODEL=Qwen/Qwen2.5-3B-Instruct bash scripts/train_verl_grpo_single_gpu.sh
+# Passive ablation: fixed examples in the prompt, no adaptive environment loop.
+# Use this only for the matched-compute Passive baseline.
 
 MODEL="${MODEL:-Qwen/Qwen2.5-3B-Instruct}"
-TRAIN_FILE="${TRAIN_FILE:-data/generated/train_agent.parquet}"
-VAL_FILE="${VAL_FILE:-data/generated/val_agent.parquet}"
+TRAIN_FILE="${TRAIN_FILE:-data/generated/train_passive.parquet}"
+VAL_FILE="${VAL_FILE:-data/generated/val_passive.parquet}"
 PROJECT_NAME="${PROJECT_NAME:-active-program-induction}"
-EXPERIMENT_NAME="${EXPERIMENT_NAME:-qwen-grpo-phase1-agent-loop-single-gpu}"
+EXPERIMENT_NAME="${EXPERIMENT_NAME:-qwen-grpo-phase1-passive-single-gpu}"
 N_GPUS="${N_GPUS:-1}"
 ROLLOUT_N="${ROLLOUT_N:-8}"
 MAX_PROMPT_LENGTH="${MAX_PROMPT_LENGTH:-2048}"
@@ -21,7 +20,6 @@ export PYTHONPATH="${PWD}/src:${PYTHONPATH:-}"
 
 "${PYTHON}" -m verl.trainer.main_ppo \
   algorithm.adv_estimator=grpo \
-  data.return_raw_chat=True \
   data.train_files="${TRAIN_FILE}" \
   data.val_files="${VAL_FILE}" \
   data.train_batch_size=16 \
@@ -32,11 +30,11 @@ export PYTHONPATH="${PWD}/src:${PYTHONPATH:-}"
   actor_rollout_ref.actor.ppo_mini_batch_size=8 \
   actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=1 \
   actor_rollout_ref.rollout.name=vllm \
-  actor_rollout_ref.rollout.mode=async \
-  actor_rollout_ref.rollout.agent.agent_loop_config_path="${PWD}/configs/agent_loop.yaml" \
   actor_rollout_ref.rollout.n="${ROLLOUT_N}" \
   actor_rollout_ref.rollout.gpu_memory_utilization=0.6 \
   actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=1 \
+  custom_reward_function.path="${PWD}/src/active_program_induction/training/verl_reward.py" \
+  custom_reward_function.name=compute_score \
   trainer.project_name="${PROJECT_NAME}" \
   trainer.experiment_name="${EXPERIMENT_NAME}" \
   trainer.n_gpus_per_node="${N_GPUS}" \

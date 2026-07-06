@@ -22,9 +22,9 @@ mkdir -p "${OUT_DIR}"
   --families automata,boolean_junta \
   --tiers easy,medium \
   --out "${OUT_DIR}/train_tasks.jsonl" \
-  --verl-out "${OUT_DIR}/train_verl.jsonl" \
-  --parquet-out "${OUT_DIR}/train_active.parquet" \
-  --mode active
+  --verl-out "${OUT_DIR}/train_agent_verl.jsonl" \
+  --parquet-out "${OUT_DIR}/train_agent.parquet" \
+  --mode agent
 
 "${VENV}/bin/api-bench" generate \
   --n "${N_VAL}" \
@@ -32,9 +32,9 @@ mkdir -p "${OUT_DIR}"
   --families automata,boolean_junta \
   --tiers easy,medium \
   --out "${OUT_DIR}/val_tasks.jsonl" \
-  --verl-out "${OUT_DIR}/val_verl.jsonl" \
-  --parquet-out "${OUT_DIR}/val_active.parquet" \
-  --mode active
+  --verl-out "${OUT_DIR}/val_agent_verl.jsonl" \
+  --parquet-out "${OUT_DIR}/val_agent.parquet" \
+  --mode agent
 
 "${VENV}/bin/api-bench" generate \
   --n "${N_TRAIN}" \
@@ -57,7 +57,7 @@ mkdir -p "${OUT_DIR}"
   --mode passive
 
 echo "Generated veRL parquet files:"
-echo "  ${OUT_DIR}/train_active.parquet"
-echo "  ${OUT_DIR}/val_active.parquet"
+echo "  ${OUT_DIR}/train_agent.parquet"
+echo "  ${OUT_DIR}/val_agent.parquet"
 echo "  ${OUT_DIR}/train_passive.parquet"
 echo "  ${OUT_DIR}/val_passive.parquet"

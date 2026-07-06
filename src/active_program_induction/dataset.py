@@ -6,7 +6,8 @@ import random
 from typing import Iterable
 
 from active_program_induction import dfa, junta
-from active_program_induction.prompts import active_prompt, passive_prompt
+from active_program_induction.env import initial_messages
+from active_program_induction.prompts import active_prompt, agent_loop_prompt, passive_prompt
 
 
 def generate_tasks(
@@ -69,31 +70,33 @@ def sample_examples(task: dict, n: int = 8, seed: int = 0) -> list[dict]:
     raise ValueError(f"unknown family {task['family']!r}")
 
 
-def to_verl_rows(tasks: Iterable[dict], split: str = "train", mode: str = "active") -> list[dict]:
-    if mode not in {"active", "passive"}:
-        raise ValueError("mode must be active or passive")
+def to_verl_rows(tasks: Iterable[dict], split: str = "train", mode: str = "agent") -> list[dict]:
+    if mode not in {"agent", "active", "passive"}:
+        raise ValueError("mode must be agent, active, or passive")
     rows = []
     for idx, task in enumerate(tasks):
         ground_truth = json.dumps(task, sort_keys=True)
-        prompt = active_prompt(task)
+        prompt = agent_loop_prompt(task) if mode == "agent" else active_prompt(task)
         if mode == "passive":
             prompt = passive_prompt(task, sample_examples(task, seed=idx))
-        rows.append(
-            {
-                "data_source": "active_program_induction",
-                "prompt": prompt,
-                "ability": task["family"],
-                "reward_model": {"style": "rule", "ground_truth": ground_truth},
-                "ground_truth": ground_truth,
-                "extra_info": {
-                    "split": split,
-                    "mode": mode,
-                    "task_id": task["task_id"],
-                    "family": task["family"],
-                    "tier": task["tier"],
-                },
-            }
-        )
+        row = {
+            "data_source": "active_program_induction",
+            "prompt": prompt,
+            "ability": task["family"],
+            "reward_model": {"style": "rule", "ground_truth": ground_truth},
+            "ground_truth": ground_truth,
+            "extra_info": {
+                "split": split,
+                "mode": mode,
+                "task_id": task["task_id"],
+                "family": task["family"],
+                "tier": task["tier"],
+            },
+        }
+        if mode == "agent":
+            row["agent_name"] = "active_program_induction"
+            row["raw_prompt"] = initial_messages(task)
+        rows.append(row)
     return rows
 
 

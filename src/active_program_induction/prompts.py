@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 
+from active_program_induction.env import initial_messages
+
 
 ACTIVE_SYSTEM = """You are solving an active program induction task.
 You may choose probe inputs, observe hidden outputs, and then submit a hypothesis.
@@ -34,6 +36,10 @@ def active_prompt(task: dict) -> str:
         "public_spec": public,
     }
     return ACTIVE_SYSTEM + "\nTask:\n" + json.dumps(body, indent=2, sort_keys=True)
+
+
+def agent_loop_prompt(task: dict) -> str:
+    return "\n\n".join(f"{m['role'].upper()}:\n{m['content']}" for m in initial_messages(task))
 
 
 def passive_prompt(task: dict, examples: list[dict]) -> str:

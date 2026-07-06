@@ -21,7 +21,7 @@ def main() -> None:
     gen.add_argument("--out", default="data/generated/tasks.jsonl")
     gen.add_argument("--verl-out", default=None, help="optional veRL JSONL rows")
     gen.add_argument("--parquet-out", default=None, help="optional veRL parquet rows")
-    gen.add_argument("--mode", choices=["active", "passive"], default="active")
+    gen.add_argument("--mode", choices=["agent", "active", "passive"], default="agent")
 
     smoke = sub.add_parser("smoke", help="run CPU scorer smoke test")
     smoke.add_argument("--n", type=int, default=20)
