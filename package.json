@@ -1,0 +1,25 @@
+{
+  "name": "skyfoundry",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.7.0",
+  "scripts": {
+    "dev": "pnpm --filter @skyfoundry/web dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test && PYTHONPATH=apps/orchestrator .venv/bin/pytest -q apps/orchestrator/tests apps/cad-worker/tests",
+    "test:e2e": "playwright test",
+    "test:visual": "playwright test --grep @visual",
+    "demo:seed": "tsx scripts/seed-demo.ts",
+    "demo:run": "pnpm demo:seed && pnpm dev",
+    "validate:project": "tsx scripts/validate-project.ts artifacts/manhattan-tower/project.json"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.1",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  },
+  "pnpm": {"overrides":{"postcss":"8.5.10"}}
+}

@@ -1,0 +1,15 @@
+{
+  "primitive": "extruded_profile",
+  "units": "m",
+  "profile": {
+    "type": "rounded_rectangle",
+    "width": 1.2,
+    "depth": 0.6,
+    "radius": 0.08
+  },
+  "height": 0.25,
+  "holes": [],
+  "fillets": [
+    {"edgeSelector": "vertical", "radius": 0.02}
+  ]
+}
