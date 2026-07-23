@@ -11,6 +11,13 @@ test('deterministic Manhattan Tower build, inspection, revision and export', asy
   await expect(page.getByTestId('accepted-patches')).toContainText('0 / 7');
   await expect(page.getByText(/Conceptual simulation only/).first()).toBeVisible();
   await page.screenshot({path:'screenshots/01-landing.png'});
+  await page.getByRole('button',{name:/agent crew/i}).click();
+  await expect(page.getByRole('dialog',{name:'Configure agent crew'})).toBeVisible();
+  await page.getByLabel('Agent autonomy').selectOption('auto_build');
+  await page.getByLabel('architect name').fill('Mara');
+  await expect(page.getByText(/API keys stay on the orchestrator server/i)).toBeVisible();
+  await page.screenshot({path:'screenshots/09-agent-crew.png'});
+  await page.getByRole('button',{name:'Use this crew'}).click();
   await page.getByRole('button',{name:/Start design session/i}).click();
   await expect(page.locator('html')).toHaveAttribute('data-scene-ready','true');
   await expect.poll(async()=>Number((await page.getByTestId('accepted-patches').textContent())?.split('/')[0]?.trim()??0)).toBeGreaterThanOrEqual(2);
@@ -21,7 +28,7 @@ test('deterministic Manhattan Tower build, inspection, revision and export', asy
   await expect(page.getByTestId('construction-canvas')).toBeVisible();
   await expect.poll(()=>page.evaluate(()=>Boolean((window as any).__SKYFOUNDRY_SCENE__.getObjectByName('cad-planter-import')))).toBe(true);
   expect(await page.evaluate(()=>({lost:(window as any).__SKYFOUNDRY_RENDERER__.getContext().isContextLost(),calls:(window as any).__SKYFOUNDRY_RENDERER__.info.render.calls,triangles:(window as any).__SKYFOUNDRY_RENDERER__.info.render.triangles}))).toMatchObject({lost:false});
-  await expect(page.getByText('Scripted studio online')).toBeVisible();
+  await expect(page.getByText('Configured studio online')).toBeVisible();
   await expect(page.getByTestId('agent-round')).toHaveCount(8);
 
   const timeline=page.getByLabel('Construction timeline');
@@ -54,10 +61,21 @@ test('deterministic Manhattan Tower build, inspection, revision and export', asy
   await timeline.fill('1000');
   await page.getByRole('button',{name:'Overview'}).click();
   await page.screenshot({path:'screenshots/06-revised-crown.png'});
+  await page.getByRole('button',{name:'Close revision preview'}).click();
+
+  await page.getByLabel('Search components').fill('curtain_wall_panel');
+  await page.locator('.component-tree button').first().click();
+  const demolishedId=await page.locator('.component-hero code').textContent();
+  await page.getByRole('button',{name:'Destroy part'}).click();
+  await expect(page.getByText(/Demolished tower-a/i)).toBeVisible();
+  await page.screenshot({path:'screenshots/10-sandbox-demolition.png'});
+  await page.getByRole('button',{name:'Restore last'}).last().click();
+  await expect(page.getByText(/Restored the last demolished component/i)).toBeVisible();
+  expect(demolishedId).toContain('/facade/');
 
   await page.getByRole('button',{name:'Replay'}).click();
-  await expect.poll(async()=>Number(await timeline.inputValue()),{timeout:1_000}).toBeLessThan(60);
   const replayPause=page.getByRole('button',{name:'Pause timeline'});if(await replayPause.isVisible())await replayPause.click();
+  expect(Number(await timeline.inputValue())).toBeLessThan(250);
   const projectDownload=page.waitForEvent('download');
   await page.getByRole('button',{name:/Export/}).click();
   await page.getByRole('button',{name:'Project JSON'}).click();
@@ -74,6 +92,6 @@ test('deterministic Manhattan Tower build, inspection, revision and export', asy
 });
 
 test('@visual completed night and mobile viewer',async({browser})=>{
-  const page=await browser.newPage({viewport:{width:1440,height:900}});await page.goto('/');await page.getByRole('button',{name:/Start design session/i}).click();await expect(page.locator('html')).toHaveAttribute('data-scene-ready','true');await page.getByLabel('Construction timeline').fill('1000');await page.getByLabel('Scene mode').selectOption('night');await page.waitForTimeout(500);await page.screenshot({path:'screenshots/07-completed-night.png'});await page.close();
+  const page=await browser.newPage({viewport:{width:1440,height:900}});await page.goto('/');await page.getByRole('button',{name:/Start design session/i}).click();await expect(page.locator('html')).toHaveAttribute('data-scene-ready','true');await page.getByLabel('Construction timeline').fill('1000');await page.getByLabel('Scene mode').selectOption('night');await page.waitForTimeout(500);await page.screenshot({path:'screenshots/07-completed-night.png'});await page.getByLabel('Scene mode').selectOption('realistic');await page.getByRole('button',{name:'Street'}).click();await page.waitForTimeout(400);await page.screenshot({path:'screenshots/11-street-context.png'});await page.close();
   const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});await mobile.goto('/');await mobile.getByRole('button',{name:/Start design session/i}).click();await expect(mobile.locator('html')).toHaveAttribute('data-scene-ready','true');await mobile.getByLabel('Construction timeline').fill('1000');await mobile.waitForTimeout(300);await mobile.screenshot({path:'screenshots/08-mobile-viewer.png'});await mobile.close();
 });

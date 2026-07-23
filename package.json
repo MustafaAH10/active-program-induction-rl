@@ -5,6 +5,7 @@
   "packageManager": "pnpm@10.7.0",
   "scripts": {
     "dev": "pnpm --filter @skyfoundry/web dev",
+    "dev:orchestrator": "bash scripts/run-orchestrator.sh",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
@@ -21,5 +22,5 @@
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
   },
-  "pnpm": {"overrides":{"postcss":"8.5.10"}}
+  "pnpm": {"overrides":{"postcss":"8.5.10","sharp":"0.35.0"}}
 }
