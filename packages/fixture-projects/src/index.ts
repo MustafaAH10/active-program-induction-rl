@@ -116,5 +116,9 @@ export function createManhattanDemo(){
 export const manhattanContext=[
   {id:'context-1',x:-70,z:-45,w:34,d:28,h:58},{id:'context-2',x:-34,z:-48,w:24,d:25,h:82},{id:'context-3',x:18,z:-50,w:30,d:24,h:52},{id:'context-4',x:58,z:-44,w:32,d:30,h:96},
   {id:'context-5',x:-72,z:45,w:32,d:30,h:74},{id:'context-6',x:-36,z:46,w:24,d:27,h:44},{id:'context-7',x:18,z:48,w:28,d:30,h:68},{id:'context-8',x:58,z:45,w:34,d:28,h:84},
-  {id:'context-9',x:-72,z:0,w:28,d:24,h:48},{id:'context-10',x:72,z:0,w:26,d:30,h:62}
+  {id:'context-9',x:-72,z:0,w:28,d:24,h:48},{id:'context-10',x:72,z:0,w:26,d:30,h:62},
+  {id:'context-11',x:-106,z:-62,w:26,d:24,h:112},{id:'context-12',x:-76,z:-72,w:22,d:20,h:72},{id:'context-13',x:-47,z:-76,w:28,d:18,h:126},{id:'context-14',x:-12,z:-73,w:24,d:20,h:88},
+  {id:'context-15',x:20,z:-76,w:28,d:18,h:118},{id:'context-16',x:54,z:-73,w:25,d:22,h:78},{id:'context-17',x:86,z:-69,w:27,d:24,h:134},{id:'context-18',x:112,z:-56,w:22,d:26,h:68},
+  {id:'context-19',x:-108,z:66,w:28,d:24,h:92},{id:'context-20',x:-76,z:74,w:24,d:20,h:138},{id:'context-21',x:-45,z:76,w:27,d:20,h:79},{id:'context-22',x:-12,z:73,w:25,d:22,h:108},
+  {id:'context-23',x:22,z:76,w:27,d:19,h:146},{id:'context-24',x:55,z:73,w:25,d:22,h:82},{id:'context-25',x:86,z:70,w:28,d:25,h:121},{id:'context-26',x:114,z:58,w:22,d:28,h:76}
 ];

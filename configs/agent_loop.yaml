@@ -1,2 +1,0 @@
-- name: active_program_induction
-  _target_: active_program_induction.training.verl_agent_loop.ActiveProgramInductionAgentLoop
